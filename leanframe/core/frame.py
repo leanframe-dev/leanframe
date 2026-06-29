@@ -29,9 +29,21 @@ from leanframe.core.indexing import (
     LocIndexer,
     HeadTailMixin,
 )
+from leanframe.core.mixins import (
+    AggregationsMixin,
+    TransformationsMixin,
+    ArithmeticMixin,
+    ComparisonsMixin,
+)
 
 
-class DataFrame(HeadTailMixin):
+class DataFrame(
+    HeadTailMixin,
+    AggregationsMixin,
+    TransformationsMixin,
+    ArithmeticMixin,
+    ComparisonsMixin,
+):
     """A 2D data structure, representing data and deferred computation.
 
     WARNING: Do not call this constructor directly. Use the factory methods on
@@ -114,19 +126,17 @@ class DataFrame(HeadTailMixin):
         types = [convert_ibis_to_pandas(t) for t in self._data.schema().types]
         return pd.Series(types, index=names, name="dtypes")
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> DataFrame:
         """Get a column.
 
         Note: direct row access via an Index is intentionally not implemented by
         leanframe. Check out a project like Google's BigQuery DataFrames
         (bigframes) if you require indexing.
         """
-        import leanframe.core.series
-
-        # TODO(tswast): Support filtering by a boolean Series if we get a Series
-        # instead of a key? If so, the Series would have to be a column of the
+        # TODO(tswast): Support filtering by a boolean DataFrame if we get a DataFrame
+        # instead of a key? If so, the DataFrame would have to be a single column of the
         # current DataFrame, only. No joins by index key are available.
-        return leanframe.core.series.Series(self._data[key])
+        return DataFrame(self._data.select(self._data[key]))
 
     def assign(self, **kwargs):
         """Assign new columns to a DataFrame.
@@ -136,18 +146,53 @@ class DataFrame(HeadTailMixin):
         Args:
             kwargs:
                 The column names are keywords. If the values are not callable,
-                (e.g. a Series, scalar, or array), they are simply assigned.
+                (e.g. a DataFrame, scalar, or array), they are simply assigned.
         """
-        named_exprs = {name: self._data[name] for name in self._data.columns}
+        import leanframe.core.expression
+
+        import ibis.expr.operations as ops
+
         new_exprs = {}
         for name, value in kwargs.items():
-            expr = getattr(value, "_data", None)
-            if expr is None:
-                expr = ibis.literal(value)
+            if isinstance(value, DataFrame):
+                col_name = value._data.columns[0]
+                op = value._data.op()
+                if isinstance(op, ops.Project):
+                    expr = op.values[col_name].to_expr()
+                else:
+                    expr = value._data[col_name]
+            elif isinstance(value, leanframe.core.expression.Expression):
+                expr = getattr(value, "_data")
+            else:
+                expr = getattr(value, "_data", None)
+                if expr is None:
+                    expr = ibis.literal(value)
+
+            # Use `expr.name()` to align with `mutate` semantics.
             new_exprs[name] = expr
 
-        named_exprs.update(new_exprs)
-        return DataFrame(self._data.select(**named_exprs))
+        # Since we mapped expressions to the original table relations, we can use `mutate`.
+        # However, Ibis sometimes retains lineage through Projects that causes IntegrityError
+        # when mutating the original table. By extracting the literal value we bypass it mostly.
+        # But `replace` on the node might be required if it's still bound to a different relation.
+        try:
+            return DataFrame(self._data.mutate(**new_exprs))
+        except ibis.common.exceptions.IntegrityError:
+            # Fallback for complex lineage rebinds
+            named_exprs = {n: self._data[n] for n in self._data.columns if n not in new_exprs}
+
+            # We rewrite expressions directly into the parent table's scope to bypass integrity.
+            rebound_exprs = {}
+            for k, v in new_exprs.items():
+                if hasattr(v, 'op') and getattr(v.op(), 'relations', None):
+                    try:
+                        v = v.op().replace({v.op().relations[0]: self._data.op()}).to_expr()
+                    except Exception:
+                        pass
+                rebound_exprs[k] = v
+
+            named_exprs.update(rebound_exprs)
+            return DataFrame(self._data.select(**named_exprs))
 
     def to_pandas(self) -> pd.DataFrame:
         """Convert the DataFrame to a pandas.DataFrame.
