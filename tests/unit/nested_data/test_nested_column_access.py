@@ -22,10 +22,10 @@ def test_nested_column_access():
     assert "contact" in lf_df.columns.tolist()
 
     # Method 1: Access top-level nested columns
-    person_series = lf_df["person"]
-    contact_series = lf_df["contact"]
-    assert person_series.dtype.name.startswith("struct")
-    assert contact_series.dtype.name.startswith("struct")
+    person_df = lf_df["person"]
+    contact_df = lf_df["contact"]
+    assert person_df.dtypes.iloc[0].name.startswith("struct")
+    assert contact_df.dtypes.iloc[0].name.startswith("struct")
 
     # Method 2: Extract nested fields using ibis (Recommended!)
     ibis_table = lf_df._data

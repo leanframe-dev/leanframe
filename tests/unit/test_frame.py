@@ -19,7 +19,6 @@ import pandas.testing as tm
 import pyarrow as pa
 
 import leanframe
-import leanframe.core.series
 
 
 def test_dataframe_dtypes(session: leanframe.Session):
@@ -92,13 +91,13 @@ def test_dataframe_getitem_with_column(session: leanframe.Session):
         )
     )
     series_1 = df_lf["col1"]
-    assert isinstance(series_1, leanframe.core.series.Series)
-    assert series_1.name == "col1"
+    assert isinstance(series_1, leanframe.core.frame.DataFrame)
+    assert series_1.columns.tolist() == ["col1"]
     # TODO(tswast): check dtype
 
     series_2 = df_lf["col2"]
-    assert isinstance(series_2, leanframe.core.series.Series)
-    assert series_2.name == "col2"
+    assert isinstance(series_2, leanframe.core.frame.DataFrame)
+    assert series_2.columns.tolist() == ["col2"]
     # TODO(tswast): check dtype
 
 
@@ -134,7 +133,10 @@ def test_dataframe_assign_series(session: leanframe.Session):
     )
     df_lf = session.DataFrame(df_pd)
     series_pd = pd.Series([4, 5, 6], name="col3").astype(pd.ArrowDtype(pa.int64()))
-    series_lf = df_lf["col1"] + 3
+
+    # Use session.col("col1") instead of df_lf["col1"] to construct the deferred expression
+    series_lf = session.col("col1") + 3
+
     result_lf = df_lf.assign(col3=series_lf)
     expected_pd = df_pd.assign(col3=series_pd)
     tm.assert_frame_equal(result_lf.to_pandas(), expected_pd)
@@ -154,7 +156,10 @@ def test_dataframe_assign_multiple(session: leanframe.Session):
     )
     df_lf = session.DataFrame(df_pd)
     series_pd = pd.Series([4, 5, 6], name="col3").astype(pd.ArrowDtype(pa.int64()))
-    series_lf = df_lf["col1"] + 3
+
+    # Use session.col("col1")
+    series_lf = session.col("col1") + 3
+
     result_lf = df_lf.assign(col3=series_lf, col4="d")
     expected_pd = df_pd.assign(col3=series_pd, col4="d").astype(
         {"col4": pd.ArrowDtype(pa.string())}
@@ -175,6 +180,8 @@ def test_dataframe_assign_overwrite(session: leanframe.Session):
         }
     )
     df_lf = session.DataFrame(df_pd)
-    result_lf = df_lf.assign(col1=df_lf["col1"] * 2)
+
+    # Use session.col("col1")
+    result_lf = df_lf.assign(col1=session.col("col1") * 2)
     expected_pd = df_pd.assign(col1=df_pd["col1"] * 2)
     tm.assert_frame_equal(result_lf.to_pandas(), expected_pd)
