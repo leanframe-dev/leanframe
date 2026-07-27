@@ -22,6 +22,7 @@ import pandas as pd
 from functools import reduce
 import operator
 
+from leanframe.core.window import Rolling
 from leanframe.core.dtypes import convert_ibis_to_pandas
 from leanframe.core.indexing import (
     Index,
@@ -126,6 +127,19 @@ class DataFrame(
         types = [convert_ibis_to_pandas(t) for t in self._data.schema().types]
         return pd.Series(types, index=names, name="dtypes")
 
+    def rolling(self, window: int, min_periods: int | None = None) -> Rolling:
+        """Provide rolling window calculations.
+
+        Args:
+            window: Size of the moving window. This is the number of observations
+                used for calculating the statistic.
+            min_periods: Minimum number of observations in window required to have
+                a value; otherwise, result is null. Defaults to window size.
+
+        Returns:
+            A Rolling object.
+        """
+        return Rolling(self, window=window, min_periods=min_periods)
     def __getitem__(self, key: str) -> DataFrame:
         """Get a column.
 
