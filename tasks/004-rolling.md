@@ -14,12 +14,12 @@ Implement all methods and properties for the pandas Rolling class.
 - [ ] `aggregate`
 - [ ] `apply`
 - [ ] `corr`
-- [ ] `count`
+- [x] `count`
 - [ ] `cov`
 - [ ] `exclusions`
 - [ ] `kurt`
 - [ ] `max`
-- [ ] `mean`
+- [x] `mean`
 - [ ] `median`
 - [ ] `min`
 - [ ] `ndim`
@@ -27,6 +27,6 @@ Implement all methods and properties for the pandas Rolling class.
 - [ ] `rank`
 - [ ] `sem`
 - [ ] `skew`
-- [ ] `std`
-- [ ] `sum`
+- [x] `std`
+- [x] `sum`
 - [ ] `var`

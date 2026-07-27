@@ -17,29 +17,29 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `add_suffix`
 - [ ] `agg`
 - [ ] `aggregate`
-- [ ] `align`
+- [x] `align`
 - [ ] `all`
 - [ ] `any`
 - [ ] `apply`
 - [ ] `applymap`
 - [ ] `asfreq`
 - [ ] `asof`
-- [ ] `assign`
+- [x] `assign`
 - [ ] `astype`
 - [ ] `at`
-- [ ] `at_time`
+- [x] `at_time`
 - [ ] `attrs`
 - [ ] `axes`
 - [ ] `backfill`
-- [ ] `between_time`
+- [x] `between_time`
 - [ ] `bfill`
 - [ ] `bool`
 - [ ] `boxplot`
 - [ ] `clip`
-- [ ] `columns`
+- [x] `columns`
 - [ ] `combine`
 - [ ] `combine_first`
-- [ ] `compare`
+- [x] `compare`
 - [ ] `convert_dtypes`
 - [ ] `copy`
 - [ ] `corr`
@@ -57,9 +57,9 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `dot`
 - [ ] `drop`
 - [ ] `drop_duplicates`
-- [ ] `droplevel`
+- [x] `droplevel`
 - [ ] `dropna`
-- [ ] `dtypes`
+- [x] `dtypes`
 - [ ] `duplicated`
 - [ ] `empty`
 - [ ] `eq`
@@ -72,41 +72,41 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `fillna`
 - [ ] `filter`
 - [ ] `first`
-- [ ] `first_valid_index`
+- [x] `first_valid_index`
 - [ ] `flags`
 - [ ] `floordiv`
-- [ ] `from_dict`
-- [ ] `from_records`
+- [x] `from_dict`
+- [x] `from_records`
 - [ ] `ge`
-- [ ] `get`
+- [x] `get`
 - [ ] `groupby`
 - [ ] `gt`
 - [ ] `head`
 - [ ] `hist`
 - [ ] `iat`
-- [ ] `idxmax`
-- [ ] `idxmin`
-- [ ] `iloc`
-- [ ] `index`
+- [x] `idxmax`
+- [x] `idxmin`
+- [x] `iloc`
+- [x] `index`
 - [ ] `infer_objects`
 - [ ] `info`
 - [ ] `insert`
 - [ ] `interpolate`
-- [ ] `isetitem`
+- [x] `isetitem`
 - [ ] `isin`
 - [ ] `isna`
 - [ ] `isnull`
-- [ ] `items`
-- [ ] `iterrows`
-- [ ] `itertuples`
+- [x] `items`
+- [x] `iterrows`
+- [x] `itertuples`
 - [ ] `join`
-- [ ] `keys`
+- [x] `keys`
 - [ ] `kurt`
 - [ ] `kurtosis`
 - [ ] `last`
-- [ ] `last_valid_index`
+- [x] `last_valid_index`
 - [ ] `le`
-- [ ] `loc`
+- [x] `loc`
 - [ ] `lt`
 - [ ] `map`
 - [ ] `mask`
@@ -114,7 +114,7 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `mean`
 - [ ] `median`
 - [ ] `melt`
-- [ ] `memory_usage`
+- [x] `memory_usage`
 - [ ] `merge`
 - [ ] `min`
 - [ ] `mod`
@@ -131,8 +131,8 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `pad`
 - [ ] `pct_change`
 - [ ] `pipe`
-- [ ] `pivot`
-- [ ] `pivot_table`
+- [x] `pivot`
+- [x] `pivot_table`
 - [ ] `plot`
 - [ ] `pop`
 - [ ] `pow`
@@ -143,18 +143,18 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `radd`
 - [ ] `rank`
 - [ ] `rdiv`
-- [ ] `reindex`
-- [ ] `reindex_like`
+- [x] `reindex`
+- [x] `reindex_like`
 - [ ] `rename`
-- [ ] `rename_axis`
-- [ ] `reorder_levels`
+- [x] `rename_axis`
+- [x] `reorder_levels`
 - [ ] `replace`
 - [ ] `resample`
-- [ ] `reset_index`
+- [x] `reset_index`
 - [ ] `rfloordiv`
 - [ ] `rmod`
 - [ ] `rmul`
-- [ ] `rolling`
+- [x] `rolling`
 - [ ] `round`
 - [ ] `rpow`
 - [ ] `rsub`
@@ -162,27 +162,27 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `sample`
 - [ ] `select_dtypes`
 - [ ] `sem`
-- [ ] `set_axis`
+- [x] `set_axis`
 - [ ] `set_flags`
-- [ ] `set_index`
+- [x] `set_index`
 - [ ] `shape`
 - [ ] `shift`
 - [ ] `size`
 - [ ] `skew`
-- [ ] `sort_index`
+- [x] `sort_index`
 - [ ] `sort_values`
 - [ ] `sparse`
 - [ ] `squeeze`
-- [ ] `stack`
+- [x] `stack`
 - [ ] `std`
 - [ ] `style`
 - [ ] `sub`
 - [ ] `subtract`
 - [ ] `sum`
-- [ ] `swapaxes`
-- [ ] `swaplevel`
+- [x] `swapaxes`
+- [x] `swaplevel`
 - [ ] `tail`
-- [ ] `take`
+- [x] `take`
 - [ ] `to_clipboard`
 - [ ] `to_csv`
 - [ ] `to_dict`
@@ -207,15 +207,15 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `to_xarray`
 - [ ] `to_xml`
 - [ ] `transform`
-- [ ] `transpose`
+- [x] `transpose`
 - [ ] `truediv`
-- [ ] `truncate`
-- [ ] `tz_convert`
-- [ ] `tz_localize`
-- [ ] `unstack`
-- [ ] `update`
+- [x] `truncate`
+- [x] `tz_convert`
+- [x] `tz_localize`
+- [x] `unstack`
+- [x] `update`
 - [ ] `value_counts`
-- [ ] `values`
+- [x] `values`
 - [ ] `var`
 - [ ] `where`
-- [ ] `xs`
+- [x] `xs`
