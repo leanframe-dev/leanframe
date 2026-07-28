@@ -222,6 +222,68 @@ class DataFrame(
         """Return the underlying Ibis expression."""
         return self._data
 
+    def drop(
+        self,
+        labels=None,
+        *,
+        axis=0,
+        index=None,
+        columns=None,
+        level=None,
+        inplace: bool = False,
+        errors: str = "raise",
+    ) -> DataFrame:
+        """Drop specified labels from columns.
+
+        Dropping rows by index is not supported in leanframe as there is no
+        persistent row index.
+        """
+        if inplace:
+            raise NotImplementedError("inplace=True is not supported in leanframe.")
+
+        if level is not None:
+            raise NotImplementedError("level is not supported in leanframe.")
+
+        if labels is not None:
+            if index is not None or columns is not None:
+                raise ValueError("Cannot specify both 'labels' and 'index'/'columns'")
+
+            if axis in (0, "index"):
+                index = labels
+            elif axis in (1, "columns"):
+                columns = labels
+            else:
+                raise ValueError(f"No axis named {axis} for object type DataFrame")
+
+        if index is not None:
+            raise NotImplementedError(
+                "Dropping rows by index is not supported in leanframe because "
+                "it does not maintain a persistent row index."
+            )
+
+        if labels is None and columns is None and index is None:
+            raise ValueError(
+                "Need to specify at least one of 'labels', 'index' or 'columns'"
+            )
+
+        if columns is None:
+            return DataFrame(self._data)
+
+        if isinstance(columns, str) or not hasattr(columns, "__iter__"):
+            cols_to_drop = [columns]
+        else:
+            cols_to_drop = list(columns)
+
+        existing_cols = self._data.columns
+        for col in cols_to_drop:
+            if col not in existing_cols:
+                if errors == "raise":
+                    raise KeyError(f"['{col}'] not found in axis")
+
+        cols_to_keep = [col for col in existing_cols if col not in cols_to_drop]
+
+        return DataFrame(self._data.select(*cols_to_keep))
+
     def set_index(
         self,
         columns: str | list[str],
