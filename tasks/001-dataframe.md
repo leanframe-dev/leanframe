@@ -1,0 +1,221 @@
+---
+id: "001"
+title: "DataFrame Methods and Properties"
+status: pending
+---
+
+# DataFrame Methods and Properties
+
+## Objective
+Implement all methods and properties for the pandas DataFrame class.
+
+## Tasks
+- [ ] `T`
+- [ ] `abs`
+- [ ] `add`
+- [ ] `add_prefix`
+- [ ] `add_suffix`
+- [ ] `agg`
+- [ ] `aggregate`
+- [x] `align`
+- [ ] `all`
+- [ ] `any`
+- [ ] `apply`
+- [ ] `applymap`
+- [ ] `asfreq`
+- [ ] `asof`
+- [x] `assign`
+- [ ] `astype`
+- [ ] `at`
+- [x] `at_time`
+- [ ] `attrs`
+- [ ] `axes`
+- [ ] `backfill`
+- [x] `between_time`
+- [ ] `bfill`
+- [ ] `bool`
+- [ ] `boxplot`
+- [ ] `clip`
+- [x] `columns`
+- [ ] `combine`
+- [ ] `combine_first`
+- [x] `compare`
+- [ ] `convert_dtypes`
+- [ ] `copy`
+- [ ] `corr`
+- [ ] `corrwith`
+- [ ] `count`
+- [ ] `cov`
+- [ ] `cummax`
+- [ ] `cummin`
+- [ ] `cumprod`
+- [ ] `cumsum`
+- [ ] `describe`
+- [ ] `diff`
+- [ ] `div`
+- [ ] `divide`
+- [ ] `dot`
+- [ ] `drop`
+- [ ] `drop_duplicates`
+- [x] `droplevel`
+- [ ] `dropna`
+- [x] `dtypes`
+- [ ] `duplicated`
+- [ ] `empty`
+- [ ] `eq`
+- [ ] `equals`
+- [ ] `eval`
+- [ ] `ewm`
+- [ ] `expanding`
+- [ ] `explode`
+- [ ] `ffill`
+- [ ] `fillna`
+- [ ] `filter`
+- [ ] `first`
+- [x] `first_valid_index`
+- [ ] `flags`
+- [ ] `floordiv`
+- [x] `from_dict`
+- [x] `from_records`
+- [ ] `ge`
+- [x] `get`
+- [ ] `groupby`
+- [ ] `gt`
+- [ ] `head`
+- [ ] `hist`
+- [ ] `iat`
+- [x] `idxmax`
+- [x] `idxmin`
+- [x] `iloc`
+- [x] `index`
+- [ ] `infer_objects`
+- [ ] `info`
+- [ ] `insert`
+- [ ] `interpolate`
+- [x] `isetitem`
+- [ ] `isin`
+- [ ] `isna`
+- [ ] `isnull`
+- [x] `items`
+- [x] `iterrows`
+- [x] `itertuples`
+- [ ] `join`
+- [x] `keys`
+- [ ] `kurt`
+- [ ] `kurtosis`
+- [ ] `last`
+- [x] `last_valid_index`
+- [ ] `le`
+- [x] `loc`
+- [ ] `lt`
+- [ ] `map`
+- [ ] `mask`
+- [ ] `max`
+- [ ] `mean`
+- [ ] `median`
+- [ ] `melt`
+- [x] `memory_usage`
+- [ ] `merge`
+- [ ] `min`
+- [ ] `mod`
+- [ ] `mode`
+- [ ] `mul`
+- [ ] `multiply`
+- [ ] `ndim`
+- [ ] `ne`
+- [ ] `nlargest`
+- [ ] `notna`
+- [ ] `notnull`
+- [ ] `nsmallest`
+- [ ] `nunique`
+- [ ] `pad`
+- [ ] `pct_change`
+- [ ] `pipe`
+- [x] `pivot`
+- [x] `pivot_table`
+- [ ] `plot`
+- [ ] `pop`
+- [ ] `pow`
+- [ ] `prod`
+- [ ] `product`
+- [ ] `quantile`
+- [ ] `query`
+- [ ] `radd`
+- [ ] `rank`
+- [ ] `rdiv`
+- [x] `reindex`
+- [x] `reindex_like`
+- [ ] `rename`
+- [x] `rename_axis`
+- [x] `reorder_levels`
+- [ ] `replace`
+- [ ] `resample`
+- [x] `reset_index`
+- [ ] `rfloordiv`
+- [ ] `rmod`
+- [ ] `rmul`
+- [x] `rolling`
+- [ ] `round`
+- [ ] `rpow`
+- [ ] `rsub`
+- [ ] `rtruediv`
+- [ ] `sample`
+- [ ] `select_dtypes`
+- [ ] `sem`
+- [x] `set_axis`
+- [ ] `set_flags`
+- [x] `set_index`
+- [ ] `shape`
+- [ ] `shift`
+- [ ] `size`
+- [ ] `skew`
+- [x] `sort_index`
+- [ ] `sort_values`
+- [ ] `sparse`
+- [ ] `squeeze`
+- [x] `stack`
+- [ ] `std`
+- [ ] `style`
+- [ ] `sub`
+- [ ] `subtract`
+- [ ] `sum`
+- [x] `swapaxes`
+- [x] `swaplevel`
+- [ ] `tail`
+- [x] `take`
+- [ ] `to_clipboard`
+- [ ] `to_csv`
+- [ ] `to_dict`
+- [ ] `to_excel`
+- [ ] `to_feather`
+- [ ] `to_gbq`
+- [ ] `to_hdf`
+- [ ] `to_html`
+- [ ] `to_json`
+- [ ] `to_latex`
+- [ ] `to_markdown`
+- [ ] `to_numpy`
+- [ ] `to_orc`
+- [ ] `to_parquet`
+- [ ] `to_period`
+- [ ] `to_pickle`
+- [ ] `to_records`
+- [ ] `to_sql`
+- [ ] `to_stata`
+- [ ] `to_string`
+- [ ] `to_timestamp`
+- [ ] `to_xarray`
+- [ ] `to_xml`
+- [ ] `transform`
+- [x] `transpose`
+- [ ] `truediv`
+- [x] `truncate`
+- [x] `tz_convert`
+- [x] `tz_localize`
+- [x] `unstack`
+- [x] `update`
+- [ ] `value_counts`
+- [x] `values`
+- [ ] `var`
+- [ ] `where`
+- [x] `xs`
