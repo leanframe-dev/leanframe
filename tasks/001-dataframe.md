@@ -55,7 +55,7 @@ Implement all methods and properties for the pandas DataFrame class.
 - [ ] `div`
 - [ ] `divide`
 - [ ] `dot`
-- [ ] `drop`
+- [x] `drop`
 - [ ] `drop_duplicates`
 - [x] `droplevel`
 - [ ] `dropna`
