@@ -17,6 +17,7 @@ from __future__ import annotations
 import pandas as pd
 import pandas.testing as tm
 import pyarrow as pa
+import pytest
 
 import leanframe
 
@@ -185,3 +186,91 @@ def test_dataframe_assign_overwrite(session: leanframe.Session):
     result_lf = df_lf.assign(col1=session.col("col1") * 2)
     expected_pd = df_pd.assign(col1=df_pd["col1"] * 2)
     tm.assert_frame_equal(result_lf.to_pandas(), expected_pd)
+
+
+def test_dataframe_drop_columns(session: leanframe.Session):
+    df_pd = pd.DataFrame({
+        "col1": [1, 2, 3],
+        "col2": ["a", "b", "c"],
+        "col3": [1.1, 2.2, 3.3],
+    }).astype({
+        "col1": pd.ArrowDtype(pa.int64()),
+        "col2": pd.ArrowDtype(pa.string()),
+        "col3": pd.ArrowDtype(pa.float64()),
+    })
+    df_lf = session.DataFrame(df_pd)
+
+    # Drop single column
+    result1 = df_lf.drop(columns="col2")
+    expected1 = df_pd.drop(columns="col2")
+    tm.assert_frame_equal(result1.to_pandas(), expected1)
+
+    # Drop multiple columns
+    result2 = df_lf.drop(columns=["col1", "col3"])
+    expected2 = df_pd.drop(columns=["col1", "col3"])
+    tm.assert_frame_equal(result2.to_pandas(), expected2)
+
+    # Drop using labels and axis=1
+    result3 = df_lf.drop(["col2"], axis=1)
+    expected3 = df_pd.drop(["col2"], axis=1)
+    tm.assert_frame_equal(result3.to_pandas(), expected3)
+
+def test_dataframe_drop_errors(session: leanframe.Session):
+    df_pd = pd.DataFrame({
+        "col1": [1, 2, 3],
+        "col2": ["a", "b", "c"],
+    })
+    df_lf = session.DataFrame(df_pd)
+
+    # errors="raise" is unsupported
+    with pytest.raises(ValueError, match="errors='raise' is not supported"):
+        df_lf.drop(columns="missing", errors="raise")
+
+    # Test errors='ignore' (default behavior now)
+    result = df_lf.drop(columns=["col1", "missing"])
+    # Need to handle pandas type conversion for assert
+    tm.assert_frame_equal(result.to_pandas(), df_lf.to_pandas().drop(columns=["col1", "missing"], errors="ignore"))
+
+def test_dataframe_drop_unsupported(session: leanframe.Session):
+    df_pd = pd.DataFrame({
+        "col1": [1, 2, 3],
+    })
+    df_lf = session.DataFrame(df_pd)
+
+    with pytest.raises(NotImplementedError, match="inplace=True is not supported"):
+        df_lf.drop(columns="col1", inplace=True)
+
+    with pytest.raises(NotImplementedError, match="level is not supported"):
+        df_lf.drop(columns="col1", level=1)
+
+    with pytest.raises(ValueError, match="Cannot drop rows by index labels without an index set"):
+        df_lf.drop(index=[0])
+
+    with pytest.raises(ValueError, match="Cannot drop rows by index labels without an index set"):
+        df_lf.drop(labels=[0], axis=0)
+
+    with pytest.raises(ValueError, match="Need to specify at least one of 'labels', 'index' or 'columns'"):
+        df_lf.drop()
+
+def test_dataframe_drop_index(session: leanframe.Session):
+    df_pd = pd.DataFrame({
+        "id": [1, 2, 3, 4],
+        "col2": ["a", "b", "c", "d"],
+    })
+    df_lf = session.DataFrame(df_pd)
+
+    # Must set index first
+    df_lf = df_lf.set_index("id")
+    df_pd = df_pd.set_index("id")
+
+    # Drop single index value
+    result1 = df_lf.drop(index=2)
+    expected1 = df_pd.drop(index=2)
+
+    # We use check_dtype=False because Ibis output column order or exact type might vary slightly
+    tm.assert_frame_equal(result1.to_pandas().set_index("id"), expected1, check_dtype=False, check_index_type=False)
+
+    # Drop multiple index values using labels & axis=0
+    result2 = df_lf.drop([1, 4], axis=0)
+    expected2 = df_pd.drop([1, 4], axis=0)
+    tm.assert_frame_equal(result2.to_pandas().set_index("id"), expected2, check_dtype=False, check_index_type=False)

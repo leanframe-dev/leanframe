@@ -222,6 +222,79 @@ class DataFrame(
         """Return the underlying Ibis expression."""
         return self._data
 
+    def drop(
+        self,
+        labels=None,
+        *,
+        axis=0,
+        index=None,
+        columns=None,
+        level=None,
+        inplace: bool = False,
+        errors: str = "ignore",
+    ) -> DataFrame:
+        """Drop specified labels from columns or index.
+
+        Unlike pandas, the default for errors is "ignore".
+        Using errors="raise" is unsupported in leanframe.
+        """
+        if inplace:
+            raise NotImplementedError("inplace=True is not supported in leanframe.")
+
+        if level is not None:
+            raise NotImplementedError("level is not supported in leanframe.")
+
+        if errors == "raise":
+            raise ValueError("errors='raise' is not supported in leanframe.")
+
+        if labels is not None:
+            if index is not None or columns is not None:
+                raise ValueError("Cannot specify both 'labels' and 'index'/'columns'")
+
+            if axis in (0, "index"):
+                index = labels
+            elif axis in (1, "columns"):
+                columns = labels
+            else:
+                raise ValueError(f"No axis named {axis} for object type DataFrame")
+
+        if labels is None and columns is None and index is None:
+            raise ValueError(
+                "Need to specify at least one of 'labels', 'index' or 'columns'"
+            )
+
+        new_data = self._data
+
+        if index is not None:
+            if not hasattr(self, "_index") or self._index is None:
+                raise ValueError(
+                    "Cannot drop rows by index labels without an index set. "
+                    "Use .set_index('column_name') first."
+                )
+
+            if isinstance(index, str) or not hasattr(index, "__iter__"):
+                idx_to_drop = [index]
+            else:
+                idx_to_drop = list(index)
+
+            if len(idx_to_drop) > 0:
+                index_col = new_data[self._index.columns[0]]
+                new_data = new_data.filter(~index_col.isin(idx_to_drop))
+
+        if columns is not None:
+            if isinstance(columns, str) or not hasattr(columns, "__iter__"):
+                cols_to_drop = [columns]
+            else:
+                cols_to_drop = list(columns)
+
+            existing_cols = new_data.columns
+            cols_to_keep = [col for col in existing_cols if col not in cols_to_drop]
+            new_data = new_data.select(*cols_to_keep)
+
+        res = DataFrame(new_data)
+        res._index = self._index
+        return res
+
     def set_index(
         self,
         columns: str | list[str],
