@@ -222,15 +222,12 @@ def test_dataframe_drop_errors(session: leanframe.Session):
     })
     df_lf = session.DataFrame(df_pd)
 
-    # Test errors='raise' (default)
-    with pytest.raises(KeyError, match=r"\['missing'\] not found in axis"):
-        df_lf.drop(columns="missing")
+    # errors="raise" is unsupported
+    with pytest.raises(ValueError, match="errors='raise' is not supported"):
+        df_lf.drop(columns="missing", errors="raise")
 
-    with pytest.raises(KeyError, match=r"\['missing'\] not found in axis"):
-        df_lf.drop(columns=["col1", "missing"])
-
-    # Test errors='ignore'
-    result = df_lf.drop(columns=["col1", "missing"], errors="ignore")
+    # Test errors='ignore' (default behavior now)
+    result = df_lf.drop(columns=["col1", "missing"])
     # Need to handle pandas type conversion for assert
     tm.assert_frame_equal(result.to_pandas(), df_lf.to_pandas().drop(columns=["col1", "missing"], errors="ignore"))
 

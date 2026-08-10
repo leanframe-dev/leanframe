@@ -231,18 +231,21 @@ class DataFrame(
         columns=None,
         level=None,
         inplace: bool = False,
-        errors: str = "raise",
+        errors: str = "ignore",
     ) -> DataFrame:
-        """Drop specified labels from columns.
+        """Drop specified labels from columns or index.
 
-        Dropping rows by index is not supported in leanframe as there is no
-        persistent row index.
+        Unlike pandas, the default for errors is "ignore".
+        Using errors="raise" is unsupported in leanframe.
         """
         if inplace:
             raise NotImplementedError("inplace=True is not supported in leanframe.")
 
         if level is not None:
             raise NotImplementedError("level is not supported in leanframe.")
+
+        if errors == "raise":
+            raise ValueError("errors='raise' is not supported in leanframe.")
 
         if labels is not None:
             if index is not None or columns is not None:
@@ -276,12 +279,6 @@ class DataFrame(
 
             if len(idx_to_drop) > 0:
                 index_col = new_data[self._index.columns[0]]
-                if errors == "raise":
-                    # For a database, it's hard to efficiently check if every index exists without an expensive check,
-                    # but to match pandas exactly on errors="raise", we'd need to check.
-                    # Since filtering out non-existent values is a no-op in SQL and checking is expensive,
-                    # we just apply the filter. If strict raising is required later, a separate query could do it.
-                    pass
                 new_data = new_data.filter(~index_col.isin(idx_to_drop))
 
         if columns is not None:
@@ -291,11 +288,6 @@ class DataFrame(
                 cols_to_drop = list(columns)
 
             existing_cols = new_data.columns
-            for col in cols_to_drop:
-                if col not in existing_cols:
-                    if errors == "raise":
-                        raise KeyError(f"['{col}'] not found in axis")
-
             cols_to_keep = [col for col in existing_cols if col not in cols_to_drop]
             new_data = new_data.select(*cols_to_keep)
 
