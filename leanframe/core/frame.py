@@ -630,11 +630,11 @@ class DataFrameHandler:
         For efficiency, call extract_nested_fields() once and work with that.
         """
         extracted = self._extract_nested_fields_silent()
-        pandas_df = extracted.to_pandas()
-        if column_name not in pandas_df.columns:
-            available = ", ".join(pandas_df.columns)
+        if column_name not in extracted._data.columns:
+            available = ", ".join(extracted._data.columns)
             raise KeyError(f"Column '{column_name}' not found. Available: {available}")
-        return pandas_df[column_name].tolist()
+        arrow_table = extracted._data.select(column_name).to_pyarrow()
+        return arrow_table[column_name].to_pylist()
 
     def get_record(self, index: int) -> dict:
         """
@@ -643,11 +643,17 @@ class DataFrameHandler:
         WARNING: Performs extraction and materialization on EVERY call.
         Not efficient for iterating over records - use extract_nested_fields() instead.
         """
+        if index < 0:
+            raise IndexError("Negative indices are not supported")
+
         extracted = self._extract_nested_fields_silent()
-        pandas_df = extracted.to_pandas()
-        if index >= len(pandas_df):
-            raise IndexError(f"Index {index} out of range (0-{len(pandas_df) - 1})")
-        return pandas_df.iloc[index].to_dict()
+        row_table = extracted._data.limit(1, offset=index).to_pyarrow()
+        if row_table.num_rows == 0:
+            total_rows = int(extracted._data.count().execute())
+            raise IndexError(f"Index {index} out of range (0-{total_rows - 1})")
+
+        row_data = row_table.to_pydict()
+        return {name: values[0] for name, values in row_data.items()}
 
     def __len__(self) -> int:
         """
@@ -656,8 +662,7 @@ class DataFrameHandler:
         Note: Uses original DataFrame to avoid extraction overhead.
         """
         # Use original DataFrame to avoid extraction overhead
-        pandas_df = self.original_df.to_pandas()
-        return len(pandas_df)
+        return int(self.original_df._data.count().execute())
 
     def __getitem__(self, index: int) -> dict:
         """Get record by index."""

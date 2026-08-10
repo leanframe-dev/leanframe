@@ -39,11 +39,12 @@ Key Benefits:
 
 import sys
 from pathlib import Path
+import uuid
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import ibis
-import pandas as pd
+import pyarrow as pa
 import leanframe
 from leanframe.core.frame import DataFrame
 from leanframe.core.nested_handler import NestedHandler
@@ -74,20 +75,36 @@ def main():
     customers_df = create_customers_for_join()
     orders_df = create_orders_for_join()
 
-    # Add third table - products
-    products_pd = pd.DataFrame(
-        {
-            "product_id": [1, 2, 3],
-            "name": ["Widget", "Gadget", "Doohickey"],
-            "category": ["Electronics", "Electronics", "Hardware"],
-            "price": [29.99, 149.99, 9.99],
-        }
+    # Keep data in Ibis/Arrow space and register everything on the demo backend.
+    customers_tbl = backend.create_table(
+        f"customers_demo_{uuid.uuid4().hex[:8]}",
+        customers_df.to_ibis().to_pyarrow(),
+        temp=True,
     )
-    products_df = session.DataFrame(products_pd)
+    orders_tbl = backend.create_table(
+        f"orders_demo_{uuid.uuid4().hex[:8]}",
+        orders_df.to_ibis().to_pyarrow(),
+        temp=True,
+    )
+
+    # Add third table - products
+    products_tbl = backend.create_table(
+        f"products_demo_{uuid.uuid4().hex[:8]}",
+        pa.Table.from_pydict(
+            {
+                "product_id": [1, 2, 3],
+                "name": ["Widget", "Gadget", "Doohickey"],
+                "category": ["Electronics", "Electronics", "Hardware"],
+                "price": [29.99, 149.99, 9.99],
+            }
+        ),
+        temp=True,
+    )
+    products_df = session.read_ibis(products_tbl)
 
     # Add to NestedHandler
-    nested.add("customers", session.DataFrame(customers_df.to_pandas()))
-    nested.add("orders", session.DataFrame(orders_df.to_pandas()))
+    nested.add("customers", session.read_ibis(customers_tbl))
+    nested.add("orders", session.read_ibis(orders_tbl))
     nested.add("products", products_df)
 
     print("\n✅ Added 3 tables:")
@@ -154,13 +171,27 @@ def main():
     print("=" * 70)
 
     print("\n🎯 Goal: customers ⋈ orders ⋈ products")
-    print("   Old methods: ❌ Can't do this!")
-    print("   New approach: ✅ Easy!")
 
-    # Modify orders to have product_id
-    orders_with_products_pd = orders_flat.to_pandas()
-    orders_with_products_pd["product_id"] = [1, 2, 1, 3, 2]  # Match order IDs
-    orders_with_products = session.DataFrame(orders_with_products_pd)
+    # Modify orders to have product_id without materializing to pandas.
+    order_product_map_tbl = backend.create_table(
+        f"order_product_map_demo_{uuid.uuid4().hex[:8]}",
+        pa.Table.from_pydict(
+            {
+                "map_order_id": [101, 102, 103, 104, 105],
+                "product_id": [1, 2, 1, 3, 2],
+            }
+        ),
+        temp=True,
+    )
+    orders_with_products = DataFrame(
+        orders_flat._data.join(
+            order_product_map_tbl,
+            predicates=[
+                orders_flat._data.order_id == order_product_map_tbl.map_order_id
+            ],
+            how="inner",
+        ).drop(order_product_map_tbl.map_order_id)
+    )
 
     print("\n1️⃣ First join: customers ⋈ orders")
     step1 = customers_flat._data.join(
