@@ -246,11 +246,34 @@ def test_dataframe_drop_unsupported(session: leanframe.Session):
     with pytest.raises(NotImplementedError, match="level is not supported"):
         df_lf.drop(columns="col1", level=1)
 
-    with pytest.raises(NotImplementedError, match="Dropping rows by index is not supported"):
+    with pytest.raises(ValueError, match="Cannot drop rows by index labels without an index set"):
         df_lf.drop(index=[0])
 
-    with pytest.raises(NotImplementedError, match="Dropping rows by index is not supported"):
+    with pytest.raises(ValueError, match="Cannot drop rows by index labels without an index set"):
         df_lf.drop(labels=[0], axis=0)
 
     with pytest.raises(ValueError, match="Need to specify at least one of 'labels', 'index' or 'columns'"):
         df_lf.drop()
+
+def test_dataframe_drop_index(session: leanframe.Session):
+    df_pd = pd.DataFrame({
+        "id": [1, 2, 3, 4],
+        "col2": ["a", "b", "c", "d"],
+    })
+    df_lf = session.DataFrame(df_pd)
+
+    # Must set index first
+    df_lf = df_lf.set_index("id")
+    df_pd = df_pd.set_index("id")
+
+    # Drop single index value
+    result1 = df_lf.drop(index=2)
+    expected1 = df_pd.drop(index=2)
+
+    # We use check_dtype=False because Ibis output column order or exact type might vary slightly
+    tm.assert_frame_equal(result1.to_pandas().set_index("id"), expected1, check_dtype=False, check_index_type=False)
+
+    # Drop multiple index values using labels & axis=0
+    result2 = df_lf.drop([1, 4], axis=0)
+    expected2 = df_pd.drop([1, 4], axis=0)
+    tm.assert_frame_equal(result2.to_pandas().set_index("id"), expected2, check_dtype=False, check_index_type=False)

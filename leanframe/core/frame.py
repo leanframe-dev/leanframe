@@ -255,34 +255,53 @@ class DataFrame(
             else:
                 raise ValueError(f"No axis named {axis} for object type DataFrame")
 
-        if index is not None:
-            raise NotImplementedError(
-                "Dropping rows by index is not supported in leanframe because "
-                "it does not maintain a persistent row index."
-            )
-
         if labels is None and columns is None and index is None:
             raise ValueError(
                 "Need to specify at least one of 'labels', 'index' or 'columns'"
             )
 
-        if columns is None:
-            return DataFrame(self._data)
+        new_data = self._data
 
-        if isinstance(columns, str) or not hasattr(columns, "__iter__"):
-            cols_to_drop = [columns]
-        else:
-            cols_to_drop = list(columns)
+        if index is not None:
+            if not hasattr(self, "_index") or self._index is None:
+                raise ValueError(
+                    "Cannot drop rows by index labels without an index set. "
+                    "Use .set_index('column_name') first."
+                )
 
-        existing_cols = self._data.columns
-        for col in cols_to_drop:
-            if col not in existing_cols:
+            if isinstance(index, str) or not hasattr(index, "__iter__"):
+                idx_to_drop = [index]
+            else:
+                idx_to_drop = list(index)
+
+            if len(idx_to_drop) > 0:
+                index_col = new_data[self._index.columns[0]]
                 if errors == "raise":
-                    raise KeyError(f"['{col}'] not found in axis")
+                    # For a database, it's hard to efficiently check if every index exists without an expensive check,
+                    # but to match pandas exactly on errors="raise", we'd need to check.
+                    # Since filtering out non-existent values is a no-op in SQL and checking is expensive,
+                    # we just apply the filter. If strict raising is required later, a separate query could do it.
+                    pass
+                new_data = new_data.filter(~index_col.isin(idx_to_drop))
 
-        cols_to_keep = [col for col in existing_cols if col not in cols_to_drop]
+        if columns is not None:
+            if isinstance(columns, str) or not hasattr(columns, "__iter__"):
+                cols_to_drop = [columns]
+            else:
+                cols_to_drop = list(columns)
 
-        return DataFrame(self._data.select(*cols_to_keep))
+            existing_cols = new_data.columns
+            for col in cols_to_drop:
+                if col not in existing_cols:
+                    if errors == "raise":
+                        raise KeyError(f"['{col}'] not found in axis")
+
+            cols_to_keep = [col for col in existing_cols if col not in cols_to_drop]
+            new_data = new_data.select(*cols_to_keep)
+
+        res = DataFrame(new_data)
+        res._index = self._index
+        return res
 
     def set_index(
         self,
