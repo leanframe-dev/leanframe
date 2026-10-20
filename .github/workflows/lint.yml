@@ -28,12 +28,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-      
-      - name: Install the project
-        run: uv sync --locked --all-extras --dev
 
       - name: Run linter
-        run: uv run ruff check
+        run: uvx nox -s lint
   actionlint:
     name: actionlint
     runs-on: ubuntu-latest
